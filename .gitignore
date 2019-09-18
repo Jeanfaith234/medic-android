@@ -15,3 +15,5 @@ playstore-secret.json
 
 fastlane/*
 !fastlane/Fastfile
+
+*.DS_Store

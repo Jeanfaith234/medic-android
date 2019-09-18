@@ -256,8 +256,14 @@ android {
     vhw_burundi {
       applicationId = 'org.medicmobile.webapp.mobile.vhw_burundi'
     }
-    surveillance_covid19_kenya {
-      applicationId = 'org.medicmobile.webapp.mobile.surveillance_covid19_kenya'
+    livinggoods_ug {
+      applicationId = 'org.livinggoods.smarthealth.ug'
+    }
+    livinggoods_ke {
+      applicationId = 'org.livinggoods.smarthealth.ke'
+    }
+    livinggoods_training {
+      applicationId = 'org.livinggoods.smarthealth.training'
     }
   }
 

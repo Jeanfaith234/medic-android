@@ -230,9 +230,9 @@ class ServerRepo {
 		prefs = ctx.getSharedPreferences(
 				"ServerRepo",
 				Context.MODE_PRIVATE);
-		save("https://gamma.dev.medicmobile.org");
-		save("https://gamma-cht.dev.medicmobile.org");
-		save("https://medic.github.io/atp");
+
+		save("https://smarthealth-ug-training.lg-apps.com");
+		save("https://smarthealth-ke-training.lg-apps.com");
 	}
 
 	List<ServerMetadata> getServers() {
@@ -261,16 +261,17 @@ class ServerRepo {
 		if(slashes != -1) {
 			url = url.substring(slashes + 2);
 		}
-		if(url.endsWith(".medicmobile.org")) {
-			url = url.substring(0, url.length() - ".medicmobile.org".length());
+		if(url.endsWith(".lg-apps.com")) {
+			url = url.substring(0, url.length() - ".lg-apps.com".length());
 		}
-		if(url.endsWith(".medicmobile.org/")) {
-			url = url.substring(0, url.length() - ".medicmobile.org/".length());
+		if(url.endsWith(".lg-apps.com/")) {
+			url = url.substring(0, url.length() - ".lg-apps.com/".length());
 		}
+
 		if(url.startsWith("192.168.")) {
 			return url.substring("192.168.".length());
 		} else {
-			String[] parts = url.split("\\.");
+			String[] parts = url.split("(\\.|-)");
 			url = "";
 			for(String p : parts) {
 				url += " ";
