@@ -3,6 +3,13 @@ package org.medicmobile.webapp.mobile;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
 import android.app.DatePickerDialog;
+import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.app.ActivityManager.MemoryInfo;
+import android.app.DatePickerDialog;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
@@ -42,7 +49,7 @@ public class MedicAndroidJavascript {
 	private final SimprintsSupport simprints;
 	private final MrdtSupport mrdt;
 	private final SmsSender smsSender;
-
+	private LocationManager locationManager;
 	private ActivityManager activityManager;
 	private ConnectivityManager connectivityManager;
 	private Alert soundAlert;
@@ -361,9 +368,9 @@ public class MedicAndroidJavascript {
 		int cores = Runtime.getRuntime().availableProcessors();
 		output.put("cores", cores);
 
+
 		String arch = System.getProperty("os.arch");
 		output.put("arch", arch);
-
 		return output;
 	}
 
