@@ -368,7 +368,6 @@ public class MedicAndroidJavascript {
 		int cores = Runtime.getRuntime().availableProcessors();
 		output.put("cores", cores);
 
-
 		String arch = System.getProperty("os.arch");
 		output.put("arch", arch);
 		return output;
