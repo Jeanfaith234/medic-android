@@ -2,4 +2,5 @@
 <resources>
 	<string name="app_name">CMMB MHealth - Kitui</string>
 	<string name="app_host">cmmb-kenya.app.medicmobile.org</string>
+	<string name="fixed_app_url">https://cmmb-kenya.app.medicmobile.org</string>
 </resources>
