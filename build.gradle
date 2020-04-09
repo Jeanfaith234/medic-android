@@ -234,6 +234,9 @@ android {
     supervisor_training {
       applicationId = 'org.livinggoods.supervisor.training'
     }
+    surveillance_covid19_kenya {
+      applicationId = 'org.medicmobile.webapp.mobile.surveillance_covid19_kenya'
+    }
   }
 
   splits {
