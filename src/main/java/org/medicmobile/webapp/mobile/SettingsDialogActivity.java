@@ -230,6 +230,7 @@ class ServerRepo {
 		prefs = ctx.getSharedPreferences(
 				"ServerRepo",
 				Context.MODE_PRIVATE);
+
 		save("https://smarthealth-ug-training.lg-apps.com");
 		save("https://smarthealth-ke-training.lg-apps.com");
 		save("https://smarthealth-demo.lg-apps.com");
