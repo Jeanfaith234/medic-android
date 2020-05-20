@@ -233,6 +233,9 @@ class ServerRepo {
 		save("https://smarthealth-ug-training.lg-apps.com");
 		save("https://smarthealth-ke-training.lg-apps.com");
 		save("https://smarthealth-demo.lg-apps.com");
+		save("https://gamma.dev.medicmobile.org");
+		save("https://gamma-cht.dev.medicmobile.org");
+		save("https://medic.github.io/atp");
 	}
 
 	List<ServerMetadata> getServers() {
