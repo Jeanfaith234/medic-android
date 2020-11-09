@@ -186,6 +186,15 @@ android {
     livinggoods_training {
       applicationId = 'org.livinggoods.smarthealth.training'
     }
+    supervisor_ug {
+      applicationId = 'org.livinggoods.supervisor.ug'
+    }
+    supervisor_ke {
+      applicationId = 'org.livinggoods.supervisor.ke'
+    }
+    supervisor_training {
+      applicationId = 'org.livinggoods.supervisor.training'
+    }
   }
 
   splits {
