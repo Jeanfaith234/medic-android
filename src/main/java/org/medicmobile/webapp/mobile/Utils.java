@@ -19,7 +19,13 @@ final class Utils {
 	static boolean isUrlRelated(String appUrl, Uri uriToTest) {
 		// android.net.Uri doesn't give us a host for URLs like blob:https://some-project.dev.medicmobile.org/abc-123
 		// so we might as well just regex the URL string
-		return uriToTest.toString().matches("^(blob:)?" + appUrl + "/.*$");
+		return isUrlRelated(appUrl, uriToTest.toString());
+	}
+
+	static boolean isUrlRelated(String appUrl, String uriToTest) {
+		// android.net.Uri doesn't give us a host for URLs like blob:https://some-project.dev.medicmobile.org/abc-123
+		// so we might as well just regex the URL string
+		return uriToTest.matches("^(blob:)?" + appUrl + "/.*$");
 	}
 
 	static JSONObject json(Object... keyVals) throws JSONException {
@@ -37,11 +43,11 @@ final class Utils {
 
 	static void startAppActivityChain(Activity a) {
 		if(SettingsStore.in(a).hasWebappSettings()) {
-			MmPromptForPermissionsActivity.startPermissionsRequestChainFrom(a);
+			a.startActivity(new Intent(a, EmbeddedBrowserActivity.class));
 		} else {
 			a.startActivity(new Intent(a, SettingsDialogActivity.class));
-			a.finish();
 		}
+		a.finish();
 	}
 
 	public static ProgressDialog showSpinner(Context ctx, int messageId) {

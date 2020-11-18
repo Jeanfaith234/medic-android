@@ -139,7 +139,7 @@ public class SettingsDialogActivity extends LockableActivity {
 	private void saveSettings(WebappSettings s) {
 		try {
 			settings.updateWith(s);
-			MmPromptForPermissionsActivity.startPermissionsRequestChainFrom(this);
+			this.backToWebview();
 		} catch(IllegalSettingsException ex) {
 			if(DEBUG) trace(ex, "Tried to save illegal setting.");
 			for(IllegalSetting error : ex.errors) {
@@ -230,8 +230,8 @@ class ServerRepo {
 		prefs = ctx.getSharedPreferences(
 				"ServerRepo",
 				Context.MODE_PRIVATE);
-		save("https://alpha.dev.medicmobile.org");
-		save("https://beta.dev.medicmobile.org");
+		save("https://gamma.dev.medicmobile.org");
+		save("https://gamma-cht.dev.medicmobile.org");
 		save("https://medic.github.io/atp");
 	}
 

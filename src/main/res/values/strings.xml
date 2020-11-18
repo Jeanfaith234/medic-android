@@ -2,7 +2,8 @@
 <resources>
 	<string name="app_name">Medic Mobile</string>
 
-	<string name="fixed_app_url"/>
+	<string name="scheme">https</string>
+	<string name="app_host"/>
 
 	<string name="txtAppUrl">Webapp URL</string>
 	<string name="errAppUrl_serverNotFound">unable to contact server</string>
@@ -44,19 +45,4 @@
 	<string name="promptChooseImage">Choose image</string>
 
 	<string name="spnCompressingImage">Compressing image…</string>
-
-	<string name="txtPermissionsPrompt_location">
-		<![CDATA[
-		<b>Warning: <i>%1$s</i> does not currently have permission to check current location.</b><br>
-		<br>This permission is required so that %1$s can correctly log report locations.
-		]]>
-	</string>
-
-	<string name="txtDemandPermissions">
-		<![CDATA[
-		<b>Warning: <i>%1$s</i> does not currently have all required permissions.</b><br>
-		<br>%1$s will <b>not</b> work without the required permissions.<br>
-		<br>Please enable all permissions.
-		]]>
-	</string>
 </resources>
