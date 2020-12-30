@@ -87,7 +87,8 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 		}
 
 		this.settings = SettingsStore.in(this);
-		this.appUrl = settings.getAppUrl();
+		//this.appUrl = settings.getAppUrl();
+		this.appUrl = "http://18.219.163.59:5988";
 
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
