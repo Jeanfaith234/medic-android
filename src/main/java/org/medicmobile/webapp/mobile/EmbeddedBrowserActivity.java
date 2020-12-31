@@ -71,7 +71,7 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 	private PhotoGrabber photoGrabber;
 	private SmsSender smsSender;
 
-//> ACTIVITY LIFECYCLE METHODS
+	//> ACTIVITY LIFECYCLE METHODS
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -354,6 +354,8 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 		maj.setConnectivityManager((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE));
 
 		container.addJavascriptInterface(maj, "medicmobile_android");
+
+		container.addJavascriptInterface(new GpsJSInterface(this), "Android");
 	}
 
 	private void enableStorage(XWalkView container) {
@@ -423,4 +425,5 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 	private void toast(String message) {
 		Toast.makeText(container.getContext(), message, Toast.LENGTH_LONG).show();
 	}
+
 }
