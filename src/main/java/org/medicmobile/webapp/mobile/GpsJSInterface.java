@@ -52,7 +52,7 @@ public class GpsJSInterface {
                 intent.putExtra("Form", jsInterfaceModel.getForm());
                 intent.putExtra("Username", jsInterfaceModel.getUserName());
                 intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-                intent.setComponent(new ComponentName("com.lg.gis", "com.lg.gis.MedicDataReceiver"));
+                intent.setComponent(new ComponentName("com.lg.gis", "com.lg.gis.receiver.MedicDataReceiver"));
                 mContext.sendBroadcast(intent);
             }
         }
