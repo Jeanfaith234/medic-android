@@ -186,6 +186,21 @@ android {
     livinggoods_training {
       applicationId = 'org.livinggoods.smarthealth.training'
     }
+    livinggoods_ke_an_bobasi {
+      applicationId = 'org.livinggoods.smarthealth.ke.an.bobasi'
+    }
+    livinggoods_ug_v3_lite {
+      applicationId = 'org.livinggoods.smarthealth.v3.lite'
+    }
+    livinggoods_ke_kisumu {
+      applicationId = 'org.livinggoods.smarthealth.ke.kisumu'
+    }
+    livinggoods_malaria_consortium {
+      applicationId = 'org.livinggoods.smarthealth.malaria.consortium'
+    }
+    livinggoods_ke_isiolo {
+      applicationId = 'org.livinggoods.smarthealth.ke.isiolo'
+    }
   }
 
   splits {

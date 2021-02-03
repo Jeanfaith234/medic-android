@@ -234,6 +234,11 @@ class ServerRepo {
 		save("https://smarthealth-ug-training.lg-apps.com");
 		save("https://smarthealth-ke-training.lg-apps.com");
 		save("https://smarthealth-demo.lg-apps.com");
+        save("https://bobasi-production.lg-apps.com");
+        save("https://smarthealth-ug-lite-production.lg-apps.com");
+        save("https://kisumu-production.lg-apps.com");
+        save("https://malaria-consortium.lg-apps.com");
+        save("https://isiolo-production.lg-apps.com");
 	}
 
 	List<ServerMetadata> getServers() {
