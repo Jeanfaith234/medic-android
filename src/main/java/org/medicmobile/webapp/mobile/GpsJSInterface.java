@@ -50,8 +50,6 @@ public class GpsJSInterface {
             String userName = jsonData.substring(jsonData.lastIndexOf(":") + 2, jsonData.indexOf("}") - 1);
             if (formName != null && userName != null) {
                 Intent intent = new Intent();
-                Toast.makeText(mContext, "Data = " + jsonData, Toast.LENGTH_SHORT).show();
-                Toast.makeText(mContext, "formName = " + formName + " userName = " + userName, Toast.LENGTH_SHORT).show();
                 intent.setAction("org.medicmobile.webapp.mobile");
                 intent.putExtra("Form", formName);
                 intent.putExtra("Username", userName);
