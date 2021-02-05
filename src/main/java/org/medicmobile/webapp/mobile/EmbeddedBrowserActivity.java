@@ -88,7 +88,9 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 
 		this.settings = SettingsStore.in(this);
 		//this.appUrl = settings.getAppUrl();
-		this.appUrl = "http://18.219.163.59:5988";
+		//this.appUrl = "https://sha-uat.lg-apps.com";
+		this.appUrl = "https://sbr-front-end-2.lg-apps.com";
+		//this.appUrl = "https://9efd0cfd6c95.ngrok.io";
 
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
@@ -120,6 +122,7 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 		if(settings.allowsConfiguration()) {
 			toast(redactUrl(appUrl));
 		}
+
 	}
 
 	@Override public boolean onCreateOptionsMenu(Menu menu) {
@@ -372,6 +375,7 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 	private void enableUrlHandlers(XWalkView container) {
 		container.setResourceClient(new XWalkResourceClient(container) {
 			@Override public boolean shouldOverrideUrlLoading(XWalkView view, String url) {
+
 				if (isUrlRelated(appUrl, url)) {
 					// load all related URLs in XWALK
 					return false;

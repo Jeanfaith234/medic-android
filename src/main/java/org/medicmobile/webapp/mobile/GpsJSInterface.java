@@ -45,12 +45,16 @@ public class GpsJSInterface {
     @JavascriptInterface
     public void saveFormType(String jsonData) {
         if (jsonData != null) {
-            JSInterfaceModel jsInterfaceModel = new Gson().fromJson(jsonData, JSInterfaceModel.class);
-            if (jsInterfaceModel != null) {
+            //JSInterfaceModel jsInterfaceModel = new Gson().fromJson(jsonData, JSInterfaceModel.class);
+            String formName = jsonData.substring(jsonData.indexOf(":") + 2, jsonData.indexOf(",") - 1);
+            String userName = jsonData.substring(jsonData.lastIndexOf(":") + 2, jsonData.indexOf("}") - 1);
+            if (formName != null && userName != null) {
                 Intent intent = new Intent();
+                Toast.makeText(mContext, "Data = " + jsonData, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "formName = " + formName + " userName = " + userName, Toast.LENGTH_SHORT).show();
                 intent.setAction("org.medicmobile.webapp.mobile");
-                intent.putExtra("Form", jsInterfaceModel.getForm());
-                intent.putExtra("Username", jsInterfaceModel.getUserName());
+                intent.putExtra("Form", formName);
+                intent.putExtra("Username", userName);
                 intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                 intent.setComponent(new ComponentName("com.lg.gis", "com.lg.gis.receiver.MedicDataReceiver"));
                 mContext.sendBroadcast(intent);

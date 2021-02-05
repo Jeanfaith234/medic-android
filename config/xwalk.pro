@@ -21,3 +21,9 @@
 	@android.webkit.JavascriptInterface <methods>;
 	@org.xwalk.core.JavascriptInterface <methods>;
 }
+-keep public class org.medicmobile.webapp.mobile.GpsJSInterface$MyJavaScriptInterface
+-keep public class * implements org.medicmobile.webapp.mobile.GpsJSInterface$MyJavaScriptInterface
+-keepclassmembers class org.medicmobile.webapp.mobile.GpsJSInterface$MyJavaScriptInterface {
+    <methods>;
+}
+-keepattributes JavascriptInterface
