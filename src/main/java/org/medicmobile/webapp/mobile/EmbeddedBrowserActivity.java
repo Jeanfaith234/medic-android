@@ -90,7 +90,9 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 		//this.appUrl = settings.getAppUrl();
 		//this.appUrl = "https://sha-uat.lg-apps.com";
 		this.appUrl = "https://sbr-front-end-2.lg-apps.com";
-		//this.appUrl = "https://9efd0cfd6c95.ngrok.io";
+
+		//this.appUrl = "https://sbr-ke-uat.lg-apps.com";
+		//this.appUrl = "https://d3ebbdkvz9sy4x.cloudfront.net";
 
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);

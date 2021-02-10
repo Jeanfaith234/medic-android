@@ -59,6 +59,15 @@ public class GpsJSInterface {
             }
         }
     }
+
+
+    @org.xwalk.core.JavascriptInterface
+    @JavascriptInterface
+    public void saveForm(String jsonData) {
+        if (jsonData != null) {
+            Toast.makeText(mContext, jsonData, Toast.LENGTH_SHORT).show();
+        }
+    }
 }
 
 
