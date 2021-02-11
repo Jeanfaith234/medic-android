@@ -7,7 +7,8 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
+import org.medicmobile.webapp.mobile.db.FormDataEntity;
+import org.medicmobile.webapp.mobile.db.MedicDatabase;
 
 public class GpsJSInterface {
 
@@ -63,9 +64,17 @@ public class GpsJSInterface {
 
     @org.xwalk.core.JavascriptInterface
     @JavascriptInterface
-    public void saveForm(String jsonData) {
+    public void saveForm(final String jsonData) {
         if (jsonData != null) {
             Toast.makeText(mContext, jsonData, Toast.LENGTH_SHORT).show();
+            Thread t = new Thread() {
+                public void run() {
+                    FormDataEntity dataEntity = new FormDataEntity();
+                    dataEntity.setData(jsonData);
+                    MedicDatabase.getInstance(mContext).getFormDataDao().insert(dataEntity);
+                }
+            };
+            t.start();
         }
     }
 }

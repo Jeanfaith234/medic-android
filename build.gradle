@@ -41,6 +41,11 @@ dependencies {
   testImplementation 'com.google.android:android-test:4.1.1.4'
   testImplementation 'org.robolectric:robolectric:4.3'
   implementation 'com.google.code.gson:gson:2.8.6'
+  implementation 'androidx.room:room-runtime:2.2.3'
+  implementation 'androidx.work:work-runtime:2.3.1'
+  annotationProcessor 'androidx.room:room-compiler:2.2.3'
+  debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
+
 }
 
 def simprintsApiKey, simprintsModuleId, simprintsUserId
