@@ -3,19 +3,22 @@ package org.medicmobile.webapp.mobile;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.app.ActivityManager;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,8 +32,28 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
 import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static java.lang.Boolean.parseBoolean;
@@ -70,8 +93,13 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 	private MrdtSupport mrdt;
 	private PhotoGrabber photoGrabber;
 	private SmsSender smsSender;
+	private LocationRequest mLocationRequest;
+	private Double recentLatitude;
+	private Double recentLongitude;
+	private float recentAccuracy;
+	private final int REQUEST_CHECK_SETTINGS = 1520;
 
-//> ACTIVITY LIFECYCLE METHODS
+	//> ACTIVITY LIFECYCLE METHODS
 	@Override public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -90,8 +118,9 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 		//this.appUrl = settings.getAppUrl();
 		//this.appUrl = settings.getAppUrl();
 		//this.appUrl = "https://sha-uat.lg-apps.com";
-		//this.appUrl = "https://sbr-front-end-2.lg-apps.com";
-		this.appUrl = "https://sha-backend-isiolo-alb.lg-apps.com";
+		this.appUrl = "https://sbr-front-end-2.lg-apps.com";
+		//this.appUrl = "https://sbr-ke-uat.lg-apps.com";
+		//this.appUrl = "https://d3ebbdkvz9sy4x.cloudfront.net";
 
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
@@ -379,5 +408,156 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 
 	private void toast(String message) {
 		Toast.makeText(container.getContext(), message, Toast.LENGTH_LONG).show();
+	}
+
+	@SuppressLint("MissingPermission")
+	private void prepareLocationRequest() {
+		mLocationRequest = LocationRequest.create();
+		mLocationRequest.setInterval(1000);
+		mLocationRequest.setFastestInterval(1000);
+		mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+		LocationSettingsRequest.Builder settingsBuilder = new LocationSettingsRequest.Builder()
+				.addLocationRequest(mLocationRequest);
+		settingsBuilder.setAlwaysShow(true);
+
+		Task<LocationSettingsResponse> result =
+				LocationServices.getSettingsClient(this)
+						.checkLocationSettings(settingsBuilder.build());
+
+		enableGps();
+		if (isLocationPermissionGranted(this)) {
+			LocationServices.getFusedLocationProviderClient(this)
+					.requestLocationUpdates(mLocationRequest, mLocationCallback(), null);
+
+		}else {
+			enableGps();
+		}
+
+	}
+
+
+	private LocationCallback mLocationCallback() {
+		return new LocationCallback() {
+			@Override
+			public void onLocationResult(LocationResult locationResult) {
+				super.onLocationResult(locationResult);
+				List<Location> locations = locationResult.getLocations();
+				for (Location loc : locations) {
+					if (loc == null) return;
+
+					Log.d("loctionmeeee", "lat "+loc.getLatitude()+" long "+loc.getLongitude());
+					recentLatitude = loc.getLatitude();
+					recentLongitude = loc.getLongitude();
+					recentAccuracy = loc.getAccuracy();
+					//tvLat.setText(String.valueOf(loc.getLatitude()));
+					//tvLong.setText(String.valueOf(loc.getLongitude()));
+				}
+			}
+		};
+	}
+
+	private String getUniqueId(ContentResolver contentResolver) {
+		String uniqueID = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID);
+		if (uniqueID != null) {
+			return uniqueID;
+		}else {
+			return "N/A";
+		}
+
+	}
+
+	private void askPermission(){
+		Dexter.withContext(this).withPermissions(
+				Manifest.permission.ACCESS_FINE_LOCATION,
+				Manifest.permission.ACCESS_COARSE_LOCATION)
+				.withListener(new MultiplePermissionsListener() {
+					@Override
+					public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
+
+					}
+
+					@Override
+					public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+						permissionToken.continuePermissionRequest();
+					}
+				}).check();
+	}
+
+	private void enableGps(){
+
+		if (mLocationRequest == null) return;
+
+		LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+				.addLocationRequest(mLocationRequest);
+
+		//LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+
+		SettingsClient client = LocationServices.getSettingsClient(this);
+		Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+		task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+			@Override
+			public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+				// All location settings are satisfied. The client can initialize
+				// location requests here.
+				// ...
+			}
+		});
+
+		task.addOnFailureListener(this, new OnFailureListener() {
+			@Override
+			public void onFailure(@NonNull Exception e) {
+				if (e instanceof ResolvableApiException) {
+					// Location settings are not satisfied, but this can be fixed
+					// by showing the user a dialog.
+					try {
+						// Show the dialog by calling startResolutionForResult(),
+						// and check the result in onActivityResult().
+						ResolvableApiException resolvable = (ResolvableApiException) e;
+						resolvable.startResolutionForResult(EmbeddedBrowserActivity.this,
+								REQUEST_CHECK_SETTINGS);
+					} catch (IntentSender.SendIntentException sendEx) {
+						// Ignore the error.
+					}
+				}
+			}
+		});
+	}
+
+	private Boolean isLocationPermissionGranted(Context context) {
+		Boolean isAllGranted = true;
+		ArrayList<String> permission = new ArrayList();
+		permission.add(Manifest.permission.ACCESS_FINE_LOCATION);
+		permission.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+
+		for (String perm : permission) {
+
+			int res = context.checkCallingOrSelfPermission(perm);
+			if (res != PackageManager.PERMISSION_GRANTED){
+				isAllGranted = false;
+			}
+
+		}
+
+		if (!isAllGranted){
+			askPermission();
+		}
+
+		return isAllGranted;
+	}
+
+	public String getLocationData(){
+		if (recentLatitude != null && recentLongitude != null){
+			String lat = String.valueOf(recentLatitude);
+			String lon = String.valueOf(recentLongitude);
+			String accuracy = "0";
+			accuracy = String.valueOf(recentAccuracy);
+
+
+			return "{\"latitude\":"+lat+",\"longitude\":"+lon+",\"accuracy\":"+accuracy+",\"deviceId\":"+getUniqueId(getContentResolver())+"}";
+		}else {
+			return "{\"latitude\":"+"0.0"+",\"longitude\":"+"0.0"+",\"accuracy\":"+"0"+",\"deviceId\":"+getUniqueId(getContentResolver())+"}";
+		}
 	}
 }
