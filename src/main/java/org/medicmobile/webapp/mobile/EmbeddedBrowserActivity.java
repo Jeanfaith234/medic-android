@@ -2,12 +2,18 @@ package org.medicmobile.webapp.mobile;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.app.ActivityManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.KeyEvent;
@@ -16,31 +22,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-
-import java.io.ByteArrayInputStream;
-import java.util.Collections;
-import java.util.Map;
 
 import org.xwalk.core.XWalkPreferences;
 import org.xwalk.core.XWalkResourceClient;
-import org.xwalk.core.XWalkSettings;
-import org.xwalk.core.XWalkUIClient;
-import org.xwalk.core.XWalkView;
-import org.xwalk.core.XWalkWebResourceRequest;
-import org.xwalk.core.XWalkWebResourceResponse;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static java.lang.Boolean.parseBoolean;
 import static org.medicmobile.webapp.mobile.BuildConfig.DEBUG;
 import static org.medicmobile.webapp.mobile.BuildConfig.DISABLE_APP_URL_VALIDATION;
 import static org.medicmobile.webapp.mobile.MedicLog.error;
-import static org.medicmobile.webapp.mobile.MedicLog.log;
 import static org.medicmobile.webapp.mobile.MedicLog.trace;
 import static org.medicmobile.webapp.mobile.MedicLog.warn;
 import static org.medicmobile.webapp.mobile.SimpleJsonClient2.redactUrl;
 import static org.medicmobile.webapp.mobile.Utils.createUseragentFrom;
-import static org.medicmobile.webapp.mobile.Utils.isUrlRelated;
 
 @SuppressWarnings({ "PMD.GodClass", "PMD.TooManyMethods" })
 public class EmbeddedBrowserActivity extends LockableActivity {
@@ -63,7 +63,7 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 		}
 	};
 
-	private XWalkView container;
+	private WebView container;
 	private SettingsStore settings;
 	private String appUrl;
 	private SimprintsSupport simprints;
@@ -87,7 +87,11 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 		}
 
 		this.settings = SettingsStore.in(this);
-		this.appUrl = settings.getAppUrl();
+		//this.appUrl = settings.getAppUrl();
+		//this.appUrl = settings.getAppUrl();
+		//this.appUrl = "https://sha-uat.lg-apps.com";
+		//this.appUrl = "https://sbr-front-end-2.lg-apps.com";
+		this.appUrl = "https://sha-backend-isiolo-alb.lg-apps.com";
 
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
@@ -101,13 +105,14 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 			webviewContainer.setBackgroundColor(R.drawable.warning_background);
 		}
 
-		container = (XWalkView) findViewById(R.id.wbvMain);
-
+		container = (WebView) findViewById(R.id.wbvMain);
+		enableJavascript(container);
+		container.setWebViewClient(new WebViewClient());
 		configureUseragent();
 
 		setUpUiClient(container);
 		enableRemoteChromeDebugging();
-		enableJavascript(container);
+
 		enableStorage(container);
 
 		enableUrlHandlers(container);
@@ -221,7 +226,7 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 				// block.
 				// On switching to XWalkView, we assume the same applies.
 				if(true) { // NOPMD
-					container.load("javascript:" + js, null);
+					container.loadUrl("javascript:" + js);
 				} else {
 					container.evaluateJavascript(js, IGNORE_RESULT);
 				}
@@ -245,9 +250,9 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 	}
 
 	private void configureUseragent() {
-		String current = container.getUserAgentString();
+		String current = container.getSettings().getUserAgentString();
 
-		container.setUserAgentString(createUseragentFrom(current));
+		container.getSettings().setUserAgentString(createUseragentFrom(current));
 	}
 
 	private void openSettings() {
@@ -271,55 +276,27 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 	private void browseTo(Uri url) {
 		String urlToLoad = getUrlToLoad(url);
 		if(DEBUG) trace(this, "Pointing browser to %s", redactUrl(urlToLoad));
-		container.load(urlToLoad, null);
+		container.loadUrl(urlToLoad);
 	}
 
 	private void enableRemoteChromeDebugging() {
 		XWalkPreferences.setValue(XWalkPreferences.REMOTE_DEBUGGING, true);
 	}
 
-	private void setUpUiClient(XWalkView container) {
-		container.setUIClient(new XWalkUIClient(container) {
-			/** Not applicable for Crosswalk.  TODO find alternative and remove this
-			@Override public boolean onConsoleMessage(ConsoleMessage cm) {
-				if(!DEBUG) {
-					return super.onConsoleMessage(cm);
-				}
+	private void setUpUiClient(WebView container) {
+        container.setWebChromeClient(new WebChromeClient() {
+            /* Open File */
+            public void openFileChooser(ValueCallback<Uri> callback, String acceptType, String capture) {
+                boolean iscapture = parseBoolean(capture);
 
-				trace(this, "onConsoleMessage() :: %s:%s | %s",
-						cm.sourceId(),
-						cm.lineNumber(),
-						cm.message());
-				return true;
-			} */
-
-			@Override public void openFileChooser(XWalkView view, ValueCallback<Uri> callback, String acceptType, String shouldCapture) {
-				if(DEBUG) trace(this, "openFileChooser() :: %s,%s,%s,%s", view, callback, acceptType, shouldCapture);
-
-				boolean capture = parseBoolean(shouldCapture);
-
-				if(photoGrabber.canHandle(acceptType, capture)) {
-					photoGrabber.chooser(callback, capture);
-				} else {
-					logToJsConsole("No file chooser is currently implemented for \"accept\" value: %s", acceptType);
-					warn(this, "openFileChooser() :: No file chooser is currently implemented for \"accept\" value: %s", acceptType);
-				}
-			}
-
-			/*
-			 * TODO Crosswalk: re-enable this if required
-			public void onGeolocationPermissionsShowPrompt(
-					String origin,
-					GeolocationPermissions.Callback callback) {
-				// allow all location requests
-				// TODO this should be restricted to the domain
-				// set in Settings - issue #1603
-				trace(this, "onGeolocationPermissionsShowPrompt() :: origin=%s, callback=%s",
-						origin, callback);
-				callback.invoke(origin, true, true);
-			}
-			*/
-		});
+                if (photoGrabber.canHandle(acceptType, iscapture)) {
+                    photoGrabber.chooser(callback, iscapture);
+                } else {
+                    logToJsConsole("No file chooser is currently implemented for \"accept\" value: %s", acceptType);
+                    warn(this, "openFileChooser() :: No file chooser is currently implemented for \"accept\" value: %s", acceptType);
+                }
+            }
+        });
 	}
 
 	public boolean getLocationPermissions() {
@@ -342,7 +319,7 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
-	private void enableJavascript(XWalkView container) {
+	private void enableJavascript(WebView container) {
 		container.getSettings().setJavaScriptEnabled(true);
 
 		MedicAndroidJavascript maj = new MedicAndroidJavascript(this);
@@ -355,69 +332,50 @@ public class EmbeddedBrowserActivity extends LockableActivity {
 		container.addJavascriptInterface(maj, "medicmobile_android");
 	}
 
-	private void enableStorage(XWalkView container) {
-		XWalkSettings settings = container.getSettings();
+	private void enableStorage(WebView container) {
+		//XWalkSettings settings = container.getSettings();
 
 		// N.B. in Crosswalk, database seems to be enabled by default
 
-		settings.setDomStorageEnabled(true);
+        container.getSettings().setDomStorageEnabled(true);
 
 		// N.B. in Crosswalk, appcache seems to work by default, and
 		// there is no option to set the storage path.
 	}
 
-	private void enableUrlHandlers(XWalkView container) {
-		container.setResourceClient(new XWalkResourceClient(container) {
-			@Override public boolean shouldOverrideUrlLoading(XWalkView view, String url) {
-				if (isUrlRelated(appUrl, url)) {
-					// load all related URLs in XWALK
-					return false;
-				}
 
-				// let Android decide what to do with unrelated URLs
-				// unrelated URLs include `tel:` and `sms:` uri schemes
-				Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-				view.getContext().startActivity(i);
-				return true;
+	private void enableUrlHandlers(WebView container) {
+        container.setWebViewClient(new WebViewClient() {
+
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+				return super.shouldOverrideUrlLoading(view, request);
 			}
-			@Override public XWalkWebResourceResponse shouldInterceptLoadRequest(XWalkView view, XWalkWebResourceRequest request) {
-				if(isUrlRelated(appUrl, request.getUrl())) {
-					return null; // load as normal
-				} else {
-					warn(this, "shouldInterceptLoadRequest() :: Denying access to URL outside of expected domain: %s", request.getUrl());
 
-					Map<String, String> noHeaders = Collections.<String, String>emptyMap();
-					ByteArrayInputStream emptyResponse = new ByteArrayInputStream(new byte[0]);
+			@RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                if (error.getErrorCode() == XWalkResourceClient.ERROR_OK) return;
 
-					return createXWalkWebResourceResponse(
-							"text/plain", "UTF-8", emptyResponse,
-							403, "Read access forbidden.", noHeaders);
-				}
-			}
-			@Override public void onReceivedLoadError(XWalkView view, int errorCode, String description, String failingUrl) {
-				if(errorCode == XWalkResourceClient.ERROR_OK) return;
+                //log("EmbeddedBrowserActivity.onReceivedLoadError() :: [%s] %s :: %s", errorCode, failingUrl, description);
 
-				log("EmbeddedBrowserActivity.onReceivedLoadError() :: [%s] %s :: %s", errorCode, failingUrl, description);
+                evaluateJavascript(String.format(
+                        "var body = document.evaluate('/html/body', document);" +
+                                "body = body.iterateNext();" +
+                                "if(body) {" +
+                                "  var content = document.createElement('div');" +
+                                "  content.innerHTML = '" +
+                                "<h1>Error loading page</h1>" +
+                                "<p>[%s] %s</p>" +
+                                "<button onclick=\"window.location.reload()\">Retry</button>" +
+                                "';" +
+                                "  body.appendChild(content);" +
+                                "}", error.getErrorCode(), error.getDescription()));
 
-				if(!getRootUrl().equals(failingUrl)) {
-					log("EmbeddedBrowserActivity.onReceivedLoadError() :: ignoring for non-root URL");
-				}
-
-				evaluateJavascript(String.format(
-						"var body = document.evaluate('/html/body', document);" +
-						"body = body.iterateNext();" +
-						"if(body) {" +
-						"  var content = document.createElement('div');" +
-						"  content.innerHTML = '" +
-								"<h1>Error loading page</h1>" +
-								"<p>[%s] %s</p>" +
-								"<button onclick=\"window.location.reload()\">Retry</button>" +
-								"';" +
-						"  body.appendChild(content);" +
-						"}", errorCode, description));
-			}
-		});
-	}
+            }
+        });
+    }
 
 	private void toast(String message) {
 		Toast.makeText(container.getContext(), message, Toast.LENGTH_LONG).show();
