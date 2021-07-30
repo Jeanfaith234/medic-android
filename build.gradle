@@ -201,6 +201,9 @@ android {
     livinggoods_ke_isiolo {
       applicationId = 'org.livinggoods.smarthealth.ke.isiolo'
     }
+    moh_chis_go_ke {
+      applicationId = 'org.moh.chis.go.ke'
+    }
   }
 
   splits {
