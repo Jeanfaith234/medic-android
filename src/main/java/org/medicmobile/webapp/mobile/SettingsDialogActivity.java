@@ -239,6 +239,7 @@ class ServerRepo {
         save("https://kisumu-production.lg-apps.com");
         save("https://malaria-consortium.lg-apps.com");
         save("https://isiolo-production.lg-apps.com");
+		save("https://chis.health.go.ke");
 	}
 
 	List<ServerMetadata> getServers() {
