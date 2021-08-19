@@ -177,6 +177,9 @@ android {
       simprintsModuleId = 'simprints.app'
       simprintsUserId = 'test@simprints.app'
     }
+    livinggoods_ug_direct_ops {
+      applicationId = 'org.livinggoods.smarthealth.ug.direct.ops'
+    }
     livinggoods_ug {
       applicationId = 'org.livinggoods.smarthealth.ug'
     }

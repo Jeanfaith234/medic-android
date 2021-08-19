@@ -240,6 +240,7 @@ class ServerRepo {
         save("https://malaria-consortium.lg-apps.com");
         save("https://isiolo-production.lg-apps.com");
 		save("https://chis.health.go.ke");
+		save("https://ug-direct-ops.lg-apps.com");
 	}
 
 	List<ServerMetadata> getServers() {
